@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<requires lib="gtk" version="4.8"/>
+	<template class="PuchifileWindow" parent="AdwApplicationWindow">
+		<property name="default-width">360</property>
+		<property name="default-height">720</property>
+		<child>
+			<object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="orientation">vertical</property>
+				<child>
+					<object class="AdwHeaderBar" id="header_bar">
+						<property name="visible">True</property>
+						<property name="show-start-title-buttons">True</property>
+						<property name="show-end-title-buttons">True</property>
+					</object>
+				</child>
+				<child>
+					<object class="PuchifileLocationBar" id="location_bar">
+						<property name="visible">True</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkScrolledWindow">
+						<property name="hexpand">True</property>
+						<child>
+							<object class="GtkGridView" id="grid">
+								<property name="visible">True</property>
+								<property name="vexpand">True</property>
+							</object>
+						</child>
+					</object>
+				</child>
+			</object>
+		</child>
+	</template>
+</interface>

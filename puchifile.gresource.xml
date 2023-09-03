@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/io/jchw/Puchifile">
+		<file>file_thumbnail.ui</file>
+		<file>location_bar.ui</file>
+		<file>window.ui</file>
+	</gresource>
+</gresources>
