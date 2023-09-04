@@ -1,0 +1,14 @@
+app-id: io.jchw.Puchifile
+runtime: org.gnome.Platform
+runtime-version: "44"
+sdk: org.gnome.Sdk
+command: puchifile
+finish-args:
+- "--filesystem=host"
+modules:
+- name: "Puchifile"
+  builddir: true
+  buildsystem: meson
+  sources:
+  - type: git
+    url: https://github.com/jchv/puchifile
