@@ -40,6 +40,7 @@ namespace Puchifile {
 			grid.set_factory(new Gtk.BuilderListItemFactory.from_resource(null, "/io/jchw/Puchifile/file_thumbnail.ui"));
 
 			location_bar.location_changed.connect(refresh_location);
+			location_bar.up_clicked.connect(go_up);
 			location_bar.location = GLib.Environment.get_current_dir();
 
 			grid.activate.connect(file_activated);
@@ -101,6 +102,10 @@ namespace Puchifile {
 			} else {
 				yield AppInfo.launch_default_for_uri_async(file.get_uri(), null);
 			}
+		}
+
+		private async void go_up() {
+			yield set_directory(this.current_dir.resolve_relative_path(".."));
 		}
 	}
 }

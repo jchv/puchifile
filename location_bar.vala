@@ -66,6 +66,8 @@ namespace Puchifile {
 
         public signal void location_changed();
 
+        public signal void up_clicked();
+
         private void add_history_item(string location) {
             _history.append_val(_location);
             _future.remove_range(0, _future.length);
@@ -104,6 +106,11 @@ namespace Puchifile {
             if (_future.length == 0) {
                 forward_button.sensitive = false;
             }
+        }
+
+        [GtkCallback]
+        private void on_up_clicked(Gtk.Button button) {
+            up_clicked();
         }
 
         [GtkCallback]
