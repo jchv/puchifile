@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<template class="PuchifileFileThumbnailItem" parent="GtkBox">
+		<property name="orientation">vertical</property>
+		<child>
+			<object class="PuchifileFileThumbnail" id="thumbnail">
+				<property name="margin-start">6</property>
+				<property name="margin-end">6</property>
+			</object>
+		</child>
+		<child>
+			<object class="GtkLabel" id="label">
+				<property name="lines">3</property>
+				<property name="wrap">True</property>
+				<property name="wrap-mode">word-char</property>
+				<property name="ellipsize">middle</property>
+				<property name="justify">center</property>
+				<attributes>
+					<attribute name="insert-hyphens" value="false"></attribute>
+				</attributes>
+			</object>
+		</child>
+	</template>
+</interface>

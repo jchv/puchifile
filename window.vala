@@ -17,7 +17,6 @@ namespace Puchifile {
 
 		public override void show_unmount_progress (string message, int64 time_left, int64 bytes_left) {
 		}
-
 	}
 
 	[GtkTemplate (ui = "/io/jchw/Puchifile/window.ui")]
@@ -26,24 +25,47 @@ namespace Puchifile {
 		private unowned Puchifile.LocationBar location_bar;
 		[GtkChild]
 		private unowned Gtk.GridView grid;
+		[GtkChild]
+		private unowned Adw.Banner error_banner;
 
 		private ListStore model;
 		private Gtk.MultiSelection selection_model;
+		private Gtk.DirectoryList dir_list = new Gtk.DirectoryList(@"standard::*,time::modified,$(GLib.FileAttribute.THUMBNAIL_PATH)", null);
 		private File current_dir;
 
 		public Window(Gtk.Application app) {
 			Object(application: app);
 
-			this.model = new GLib.ListStore(typeof(FileItem));
+			this.model = new GLib.ListStore(typeof(FileInfo));
 			this.selection_model = new Gtk.MultiSelection(this.model);
 			grid.set_model(this.selection_model);
-			grid.set_factory(new Gtk.BuilderListItemFactory.from_resource(null, "/io/jchw/Puchifile/file_thumbnail.ui"));
+
+			var factory = new Gtk.SignalListItemFactory ();
+			factory.bind.connect ((item) => {
+				item.child = new FileThumbnailItem((FileInfo)item.item);
+			});
+			grid.set_factory(factory);
 
 			location_bar.location_changed.connect(refresh_location);
 			location_bar.up_clicked.connect(go_up);
 			location_bar.location = GLib.Environment.get_current_dir();
 
 			grid.activate.connect(file_activated);
+			dir_list.items_changed.connect ((position, removed, added) => {
+				this.model.splice (position, removed, new GLib.Object[0]);
+				for (int i = 0; i < added; i++) {
+					this.model.insert (position + i, dir_list.get_item(position + i));
+				}
+			});
+			dir_list.notify.connect (() => {
+				if (dir_list.error != null) {
+					this.error_banner.revealed = true;
+					this.error_banner.title = @"Failed to load directory: $(dir_list.error.message)";
+				} else {
+					this.error_banner.revealed = false;
+					this.error_banner.title = "";
+				}
+			});
 		}
 
 		private async void refresh_location() {
@@ -65,24 +87,9 @@ namespace Puchifile {
 				location_bar.overwrite_location(dir.get_uri());
 			}
 			this.model.remove_all();
-			try {
-				var e = yield current_dir.enumerate_children_async (FileAttribute.STANDARD_NAME, 0, Priority.DEFAULT);
-				while (true) {
-					var files = yield e.next_files_async (10, Priority.DEFAULT);
-					if (files == null) {
-						break;
-					}
-					foreach (var info in files) {
-						this.model.append (new FileItem(info));
-					}
-				}
-			} catch (GLib.Error err) {
-				if (err.code == GLib.IOError.NOT_MOUNTED) {
-					yield try_mount(current_dir);
-					return;
-				}
-				stderr.printf ("Error: set_directory failed: %s %d\n", err.message, err.code);
-			}
+			this.error_banner.revealed = false;
+			this.error_banner.title = "";
+			dir_list.file = current_dir;
 		}
 
 		private async void try_mount(GLib.File dir) {
@@ -95,9 +102,10 @@ namespace Puchifile {
 		}
 
 		private async void file_activated(uint position) {
-			var item = (FileItem) this.model.get_item(position);
-			var file = this.current_dir.resolve_relative_path(item.name);
-			if (item.info.get_file_type() == FileType.DIRECTORY) {
+			var item = (FileInfo) this.model.get_item(position);
+			var file = this.current_dir.resolve_relative_path(item.get_name());
+			// TODO: handle resolving symlink
+			if (item.get_file_type() == FileType.DIRECTORY) {
 				yield set_directory(file);
 			} else {
 				yield AppInfo.launch_default_for_uri_async(file.get_uri(), null);

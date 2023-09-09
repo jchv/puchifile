@@ -7,6 +7,7 @@ project('puchifile', ['c', 'vala'],
 gnome = import('gnome')
 
 puchifile_app_sources = [
+	'file_thumbnail_item.vala',
 	'file_thumbnail.vala',
 	'location_bar.vala',
 	'main.vala',
